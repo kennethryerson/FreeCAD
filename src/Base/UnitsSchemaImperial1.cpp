@@ -120,8 +120,61 @@ QString UnitsSchemaImperial1::schemaTranslate(Base::Quantity quant,double &facto
 	return QString::fromLatin1("%L1 %2").arg(quant.getValue() / factor).arg(unitString);
 }
 
+QString UnitsSchemaImperial2::schemaTranslate(Base::Quantity quant,double &factor,QString &unitString)
+{
+    double UnitValue = std::abs(quant.getValue());
+	Unit unit = quant.getUnit();
+    // for imperial user/programmer mind; UnitValue is in internal system, that means
+    // mm/kg/s. And all combined units have to be calculated from there! 
 
-
+    // now do special treatment on all cases seems necessary:
+    if(unit == Unit::Length){  // Length handling ============================
+        if(UnitValue < 0.00000254){// smaller then 0.001 thou -> inch and scientific notation
+            unitString = QString::fromLatin1("in");
+            factor = 25.4;
+        }else if(UnitValue < 2.54){ // smaller then 0.1 inch -> Thou (mil)
+            unitString = QString::fromLatin1("thou");
+            factor = 0.0254;
+        }else if(UnitValue < 304.8){ 
+            unitString = QString::fromLatin1("\"");
+            factor = 25.4;
+        }else{
+            unitString = QString::fromLatin1("\'");
+            factor = 304.8;
+        }
+    }else if (unit == Unit::Area){
+        // TODO Cascade for the Areas
+        // default action for all cases without special treatment:
+        unitString = QString::fromLatin1("in^2");
+        factor = 645.16;
+    }else if (unit == Unit::Volume){
+        // TODO Cascade for the Volume
+        // default action for all cases without special treatment:
+        unitString = QString::fromLatin1("in^3");
+        factor = 16387.064;
+    }else if (unit == Unit::Mass){
+        // TODO Cascade for the wights
+        // default action for all cases without special treatment:
+        unitString = QString::fromLatin1("lb");
+        factor = 0.45359237;
+    }else if (unit == Unit::Pressure){
+        if(UnitValue < 145.038){// psi is the smallest
+            unitString = QString::fromLatin1("psi");
+            factor = 0.145038;
+        }else if(UnitValue < 145038){
+            unitString = QString::fromLatin1("ksi");
+            factor = 145.038;
+        }else{ // bigger then 1000 ksi -> psi + scientific notation 
+            unitString = QString::fromLatin1("psi");
+            factor = 0.145038;
+        }
+    }else{
+        // default action for all cases without special treatment:
+        unitString = quant.getUnit().getString();
+        factor = 1.0;
+    }
+	return QString::fromLatin1("%L1 %2").arg(quant.getValue() / factor).arg(unitString);
+}
 
 QString UnitsSchemaImperialDecimal::schemaTranslate(Base::Quantity quant,double &factor,QString &unitString)
 {

@@ -49,6 +49,19 @@ public:
  *  Here are the definiton for the imperial unit system.
  *  It also defines how the value/units get printed.
  */
+class UnitsSchemaImperial2: public UnitsSchema
+{
+public:
+    //virtual void setSchemaUnits(void);
+    //virtual void resetSchemaUnits(void);
+	virtual QString schemaTranslate(Base::Quantity quant,double &factor,QString &unitString);
+
+};
+
+/** The schema class for the imperial unit system
+ *  Here are the definiton for the imperial unit system.
+ *  It also defines how the value/units get printed.
+ */
 class UnitsSchemaImperialDecimal: public UnitsSchema
 {
 public:
