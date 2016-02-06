@@ -299,6 +299,7 @@ class Component:
         obj.addProperty("App::PropertyLink","BaseMaterial","Material",translate("Arch","A material for this object"))
         obj.addProperty("App::PropertyEnumeration","Role","Arch",translate("Arch","The role of this object"))
         obj.addProperty("App::PropertyBool","MoveWithHost","Arch",translate("Arch","Specifies if this object must move together when its host is moved"))
+        obj.addProperty("App::PropertyLink","IfcProperties","Arch",translate("Arch","Custom IFC properties and attributes"))
         obj.Proxy = self
         self.Type = "Component"
         self.Subvolume = None
@@ -577,12 +578,13 @@ class Component:
                         base = base.fuse(add)
 
                     elif (Draft.getType(o) == "Window") or (Draft.isClone(o,"Window",True)):
-                        f = o.Proxy.getSubVolume(o)
-                        if f:
-                            if base.Solids and f.Solids:
-                                if placement:
-                                    f.Placement = f.Placement.multiply(placement)
-                                base = base.cut(f)
+                        if hasattr(o.Proxy,"getSubVolume"):
+                            f = o.Proxy.getSubVolume(o)
+                            if f:
+                                if base.Solids and f.Solids:
+                                    if placement:
+                                        f.Placement = f.Placement.multiply(placement)
+                                    base = base.cut(f)
 
                     elif o.isDerivedFrom("Part::Feature"):
                         if o.Shape:
@@ -765,11 +767,13 @@ class ViewProviderComponent:
         return []
 
     def setEdit(self,vobj,mode):
-        taskd = ComponentTaskPanel()
-        taskd.obj = self.Object
-        taskd.update()
-        FreeCADGui.Control.showDialog(taskd)
-        return True
+        if mode == 0:
+            taskd = ComponentTaskPanel()
+            taskd.obj = self.Object
+            taskd.update()
+            FreeCADGui.Control.showDialog(taskd)
+            return True
+        return False
 
     def unsetEdit(self,vobj,mode):
         FreeCADGui.Control.closeDialog()
