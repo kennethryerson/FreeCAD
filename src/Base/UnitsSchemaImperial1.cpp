@@ -124,6 +124,9 @@ QString UnitsSchemaImperial2::schemaTranslate(Base::Quantity quant,double &facto
 {
     double UnitValue = std::abs(quant.getValue());
 	Unit unit = quant.getUnit();
+	bool compoundUnit = false;
+	double factor2 = 1.0;
+	QString unitString2 = QString::fromLatin1("");
     // for imperial user/programmer mind; UnitValue is in internal system, that means
     // mm/kg/s. And all combined units have to be calculated from there! 
 
@@ -135,12 +138,15 @@ QString UnitsSchemaImperial2::schemaTranslate(Base::Quantity quant,double &facto
         }else if(UnitValue < 2.54){ // smaller then 0.1 inch -> Thou (mil)
             unitString = QString::fromLatin1("thou");
             factor = 0.0254;
-        }else if(UnitValue < 304.8){ 
+        }else if(UnitValue < 304.8){ // inches
             unitString = QString::fromLatin1("\"");
             factor = 25.4;
-        }else{
+        }else{ // feet and inches
             unitString = QString::fromLatin1("\'");
+            unitString2 = QString::fromLatin1("\"");
             factor = 304.8;
+            factor2 = 25.4;
+            compoundUnit = true;
         }
     }else if (unit == Unit::Area){
         // TODO Cascade for the Areas
@@ -173,7 +179,16 @@ QString UnitsSchemaImperial2::schemaTranslate(Base::Quantity quant,double &facto
         unitString = quant.getUnit().getString();
         factor = 1.0;
     }
-	return QString::fromLatin1("%L1 %2").arg(quant.getValue() / factor).arg(unitString);
+    if(compoundUnit)
+    {
+		int UnitValue1 = static_cast<int>(quant.getValue() / factor);
+		double UnitValue2 = quant.getValue() / factor2 - UnitValue1*12;
+		return QString::fromLatin1("%L1 %2 %L3 %4").arg(UnitValue1).arg(unitString).arg(UnitValue2).arg(unitString2);
+	}
+	else
+	{
+		return QString::fromLatin1("%L1 %2").arg(quant.getValue() / factor).arg(unitString);
+	}
 }
 
 QString UnitsSchemaImperialDecimal::schemaTranslate(Base::Quantity quant,double &factor,QString &unitString)

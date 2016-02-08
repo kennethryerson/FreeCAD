@@ -89,6 +89,7 @@ void UnitsApi::setSchema(UnitSystem s)
         case SI1 : UserPrefSystem = new UnitsSchemaInternal(); break;
         case SI2 : UserPrefSystem = new UnitsSchemaMKS(); break;
         case Imperial1: UserPrefSystem = new UnitsSchemaImperial1(); break;
+        case Imperial2: UserPrefSystem = new UnitsSchemaImperial2(); break;
         case ImperialDecimal: UserPrefSystem = new UnitsSchemaImperialDecimal(); break;
         default  : UserPrefSystem = new UnitsSchemaInternal(); s = SI1; break;
     }
